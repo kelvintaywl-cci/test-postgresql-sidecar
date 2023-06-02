@@ -25,7 +25,7 @@ jobs:
             export POSTGRES_PASSWORD="Willy"
             psql -h 127.0.0.1 -p 5432 -d wiki -U Free -f schema.sql
       - run:
-          name: Insert records
+          name: Check records
           command: |
             export POSTGRES_PASSWORD="Willy"
             psql -h 127.0.0.1 -p 5432 -d wiki -U Free -c "SELECT * FROM characters;"
