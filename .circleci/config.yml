@@ -1,0 +1,27 @@
+version: 2.1
+
+executors:
+  main:
+    docker:
+      - image: cimg/base:current
+      - image: cimg/postgres:14.7
+        environment:
+          POSTGRES_DB: wiki
+          POSTGRES_USER: Free
+          POSTGRES_PASSWORD: Willy
+
+jobs:
+  build:
+    executor: main
+    steps:
+      - checkout
+      - run:
+          name: Insert records
+          command: |
+            export POSTGRES_PASSWORD="Willy"
+            psql -h 127.0.0.1 -p 5432 -d wiki -U Free -f schema.sql
+      - run:
+          name: Insert records
+          command: |
+            export POSTGRES_PASSWORD="Willy"
+            psql -h 127.0.0.1 -p 5432 -d wiki -U Free -c "SELECT * FROM characters;"
