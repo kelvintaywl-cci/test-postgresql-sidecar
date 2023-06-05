@@ -34,6 +34,10 @@ jobs:
 workflows:
   main:
     jobs:
+      - approve:
+          type: approval 
       - build:
+          requires:
+            - approve
           context:
             - foo-1
