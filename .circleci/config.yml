@@ -29,3 +29,11 @@ jobs:
           command: |
             export POSTGRES_PASSWORD="Willy"
             psql -h 127.0.0.1 -p 5432 -d wiki -U Free -c "SELECT * FROM characters;"
+
+
+workflows:
+  main:
+    jobs:
+      - build:
+          context:
+            - foo-1
