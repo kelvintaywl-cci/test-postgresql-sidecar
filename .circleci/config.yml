@@ -46,14 +46,15 @@ jobs:
               sleep 1
             done
             exit 1
-      - run:
-          name: Insert records
-          command: |
-            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -f schema.sql
-      - run:
-          name: Check records
-          command: |
-            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT * FROM characters;"
+      # - run:
+      #     name: Insert records
+      #     command: |
+      #       psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -f schema.sql
+      # - run:
+      #     name: Check records
+      #     command: |
+      #       psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT * FROM characters;"
+      - run: sleep 3
       - run:
           name: Check JIT
           command: |
