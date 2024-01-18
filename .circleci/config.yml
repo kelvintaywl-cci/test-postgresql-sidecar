@@ -79,6 +79,24 @@ jobs:
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SET jit_above_cost = 0;"
             # NOTE: if pg_jit_available() = false, JIT will not be used no matter what.
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVG(c1.strength * c2.strength) FROM characters AS c1 CROSS JOIN characters AS c2;"
+      - when:
+          condition:
+            equal:
+              - 'custom'
+              - << parameters.exec >>
+          steps:
+            - run:
+                name: set JIT_ABOVE_COST to be -1 (same as JIT off)
+                when: always
+                command: |
+                  psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SET jit_above_cost = -1;"
+                  psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVG(c1.strength * c2.strength) FROM characters AS c1 CROSS JOIN characters AS c2;"
+            - run:
+                name: set JIT off
+                when: always
+                command: |
+                  psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SET jit = off;"
+                  psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVG(c1.strength * c2.strength) FROM characters AS c1 CROSS JOIN characters AS c2;"
 workflows:
   main:
     jobs:
