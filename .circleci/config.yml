@@ -29,7 +29,7 @@ jobs:
   build:
     parameters:
       exec:
-        type: executor
+        type: string
     executor: << parameters.exec >>
     environment:
       PGPASSWORD: Willy
