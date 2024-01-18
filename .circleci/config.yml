@@ -4,7 +4,7 @@ executors:
   main:
     docker:
       - image: cimg/base:current
-      - image: cimg/postgres:14.7
+      - image: docker.io/bitnami/postgresql:12.6.0
         environment:
           POSTGRES_DB: wiki
           POSTGRES_USER: Free
