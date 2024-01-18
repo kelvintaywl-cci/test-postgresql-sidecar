@@ -58,6 +58,9 @@ jobs:
           # https://www.postgresql.org/docs/current/runtime-config-query.html#GUC-JIT
           name: Check JIT
           command: |
+            # SELECT pg_jit_available() will fail for cciserver.azurecr.io/server-postgres:12.16.32-dc3b53b container
+            # We will see the following error:
+            #     could not load library "/opt/bitnami/postgresql/lib/llvmjit.so": libLLVM-11.so.1: cannot open shared object file: No such file or directory
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SHOW jit;"
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT pg_jit_available();"
       - run:
@@ -75,8 +78,11 @@ jobs:
           name: test trigger JIT via queries
           when: always
           command: |
+            # run a SQL query requiring high computation that should trigger JIT compilation
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVG(c1.strength * c2.strength) FROM characters AS c1 CROSS JOIN characters AS c2;"
-            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SET jit_above_cost = 0;"
+
+            # lower JIT_ABOVE_COST to 0 so JIT should be used, just in case
+            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "ALTER DATABASE wiki SET jit_above_cost = 0;"
             # NOTE: if pg_jit_available() = false, JIT will not be used no matter what.
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVG(c1.strength * c2.strength) FROM characters AS c1 CROSS JOIN characters AS c2;"
       - when:
@@ -89,13 +95,15 @@ jobs:
                 name: set JIT_ABOVE_COST to be -1 (same as JIT off)
                 when: always
                 command: |
-                  psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SET jit_above_cost = -1;"
+                  # disable JIT via setting JIT_ABOVE_COST = -1
+                  psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "ALTER DATABASE SET jit_above_cost = -1;"
                   psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVG(c1.strength * c2.strength) FROM characters AS c1 CROSS JOIN characters AS c2;"
             - run:
                 name: set JIT off
                 when: always
                 command: |
-                  psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SET jit = off;"
+                  # disable JIT
+                  psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "ALTER DATABASE wiki SET jit = off;"
                   psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVG(c1.strength * c2.strength) FROM characters AS c1 CROSS JOIN characters AS c2;"
 workflows:
   main:
