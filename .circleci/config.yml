@@ -14,17 +14,29 @@ jobs:
     executor: main
     steps:
       - checkout
+      - run: echo "export PGPASSWORD=Willy" >> $BASH_ENV
       - run:
           name: Wait for DB to be ready
           command: |
             dockerize -wait tcp://localhost:5432 -timeout 1m
+
+            N=20
+            while [ $N -gt 0 ]
+            do
+              if $(psql -h 127.0.0.1 -U postgres -e "/* ping */ SELECT 1" > /dev/null); then
+                echo "Connected to PostgreSQL!"
+                exit 0
+              fi
+              echo "Not connected; retrying"
+              N=$(( $N - 1 ))
+              sleep 1
+            done
+            exit 1
       - run:
           name: Insert records
           command: |
-            export PGPASSWORD="Willy"
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -f schema.sql
       - run:
           name: Check records
           command: |
-            export PGPASSWORD="Willy"
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT * FROM characters;"
