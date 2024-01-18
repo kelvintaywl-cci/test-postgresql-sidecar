@@ -40,3 +40,8 @@ jobs:
           name: Check records
           command: |
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT * FROM characters;"
+      - run:
+          name: Check JIT
+          command: |
+            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT pg_jit_available();"
+            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SHOW jit;"
