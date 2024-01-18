@@ -21,10 +21,10 @@ jobs:
       - run:
           name: Insert records
           command: |
-            export POSTGRESQL_PASSWORD="Willy"
+            export PGPASSWORD="Willy"
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -f schema.sql
       - run:
           name: Check records
           command: |
-            export POSTGRESQL_PASSWORD="Willy"
+            export PGPASSWORD="Willy"
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT * FROM characters;"
