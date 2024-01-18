@@ -75,10 +75,10 @@ jobs:
           name: test trigger JIT via queries
           when: always
           command: |
-            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVG(strength) FROM characters;"
+            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVG(c1.strength * c2.strength) FROM characters AS c1 CROSS JOIN characters AS c2;"
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SET jit_above_cost = 0;"
             # NOTE: if pg_jit_available() = false, JIT will not be used no matter what.
-            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVG(strength) FROM characters;"
+            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVG(c1.strength * c2.strength) FROM characters AS c1 CROSS JOIN characters AS c2;"
 workflows:
   main:
     jobs:
