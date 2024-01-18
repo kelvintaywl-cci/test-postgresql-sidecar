@@ -60,7 +60,14 @@ jobs:
           command: |
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT pg_jit_available();"
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SHOW jit;"
-
+      - run:
+          # see https://www.postgresql.org/docs/current/jit-decision.html
+          name: test trigger JIT via queries
+          when: always
+          command: |
+            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT SUM(relpages) FROM pg_class;"
+            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SET jit_above_cost = 10;"
+            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT SUM(relpages) FROM pg_class;"
 workflows:
   main:
     jobs:
