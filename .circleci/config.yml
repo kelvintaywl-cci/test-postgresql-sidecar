@@ -23,7 +23,7 @@ jobs:
             N=20
             while [ $N -gt 0 ]
             do
-              if $(psql -h 127.0.0.1 -U postgres -e "/* ping */ SELECT 1" > /dev/null); then
+              if $(psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "/* ping */ SELECT 1" > /dev/null); then
                 echo "Connected to PostgreSQL!"
                 exit 0
               fi
