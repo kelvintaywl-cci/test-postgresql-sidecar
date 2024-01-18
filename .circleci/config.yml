@@ -67,6 +67,7 @@ jobs:
           command: |
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT SUM(relpages) FROM pg_class;"
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SET jit_above_cost = 10;"
+            # NOTE: if pg_jit_available() = false, JIT will not be used no matter what.
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT SUM(relpages) FROM pg_class;"
 workflows:
   main:
