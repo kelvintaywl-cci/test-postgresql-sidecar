@@ -56,17 +56,19 @@ jobs:
       #       psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT * FROM characters;"
       - run: sleep 3
       - run:
+          # From Postgres >= v12, JIT is on by default.
+          # https://www.postgresql.org/docs/current/runtime-config-query.html#GUC-JIT
           name: Check JIT
           command: |
-            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT pg_jit_available();"
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SHOW jit;"
+            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT pg_jit_available();"
       - run:
           # see https://www.postgresql.org/docs/current/jit-decision.html
           name: test trigger JIT via queries
           when: always
           command: |
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT SUM(relpages) FROM pg_class;"
-            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SET jit_above_cost = 1;"
+            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SET jit_above_cost = 0.005;"
             # NOTE: if pg_jit_available() = false, JIT will not be used no matter what.
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT SUM(relpages) FROM pg_class;"
 workflows:
