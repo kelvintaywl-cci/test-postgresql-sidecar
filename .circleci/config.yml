@@ -96,7 +96,7 @@ jobs:
                 when: always
                 command: |
                   # disable JIT via setting JIT_ABOVE_COST = -1
-                  psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "ALTER DATABASE SET jit_above_cost = -1;"
+                  psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "ALTER DATABASE wiki SET jit_above_cost = -1;"
                   psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVG(c1.strength * c2.strength) FROM characters AS c1 CROSS JOIN characters AS c2;"
             - run:
                 name: set JIT off
