@@ -1,7 +1,7 @@
 version: 2.1
 
 executors:
-  main:
+  bitnami:
     docker:
       - image: cimg/base:current
       - image: docker.io/bitnami/postgresql:12.6.0
@@ -9,9 +9,23 @@ executors:
           POSTGRESQL_DATABASE: wiki
           POSTGRESQL_PASSWORD: Willy
 
+  custom:
+    docker:
+      - image: cimg/base:current
+      - image: cciserver.azurecr.io/server-postgres:12.16.32-dc3b53b
+        auth:
+          username: $ACR_USERNAME
+          password: $ACR_PASSWORD
+        environment:
+          POSTGRESQL_DATABASE: wiki
+          POSTGRESQL_PASSWORD: Willy
+
 jobs:
   build:
-    executor: main
+    parameters:
+      exec:
+        type: executor
+    executor: << parameters.exec >>
     steps:
       - checkout
       - run: echo "export PGPASSWORD=Willy" >> $BASH_ENV
@@ -45,3 +59,13 @@ jobs:
           command: |
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT pg_jit_available();"
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SHOW jit;"
+
+workflows:
+  main:
+    jobs:
+      - build:
+          matrix:
+            parameters:
+              exec:
+                - bitnami
+                - custom
