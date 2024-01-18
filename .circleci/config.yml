@@ -37,7 +37,7 @@ jobs:
             N=20
             while [ $N -gt 0 ]
             do
-              if $(psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "/* ping */ SELECT 1" > /dev/null); then
+              if $(psql -h localhost -p 5432 -d wiki -U postgres -c "/* ping */ SELECT 1" > /dev/null); then
                 echo "Connected to PostgreSQL!"
                 exit 0
               fi
@@ -49,16 +49,16 @@ jobs:
       - run:
           name: Insert records
           command: |
-            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -f schema.sql
+            psql -h localhost -p 5432 -d wiki -U postgres -f schema.sql
       - run:
           name: Check records
           command: |
-            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT * FROM characters;"
+            psql -h localhost -p 5432 -d wiki -U postgres -c "SELECT * FROM characters;"
       - run:
           name: Check JIT
           command: |
-            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT pg_jit_available();"
-            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SHOW jit;"
+            psql -h localhost -p 5432 -d wiki -U postgres -c "SELECT pg_jit_available();"
+            psql -h localhost -p 5432 -d wiki -U postgres -c "SHOW jit;"
 
 workflows:
   main:
