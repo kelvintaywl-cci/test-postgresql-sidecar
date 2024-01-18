@@ -7,7 +7,6 @@ executors:
       - image: docker.io/bitnami/postgresql:12.6.0
         environment:
           POSTGRESQL_DATABASE: wiki
-          POSTGRESQL_USERNAME: Free
           POSTGRESQL_PASSWORD: Willy
 
 jobs:
@@ -23,9 +22,9 @@ jobs:
           name: Insert records
           command: |
             export POSTGRESQL_PASSWORD="Willy"
-            psql -h 127.0.0.1 -p 5432 -d wiki -U Free -f schema.sql
+            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -f schema.sql
       - run:
           name: Check records
           command: |
             export POSTGRESQL_PASSWORD="Willy"
-            psql -h 127.0.0.1 -p 5432 -d wiki -U Free -c "SELECT * FROM characters;"
+            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT * FROM characters;"
