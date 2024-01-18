@@ -8,7 +8,6 @@ executors:
         environment:
           POSTGRESQL_DATABASE: wiki
           POSTGRESQL_PASSWORD: Willy
-
   custom:
     docker:
       - image: cimg/base:current
@@ -19,16 +18,23 @@ executors:
         environment:
           POSTGRESQL_DATABASE: wiki
           POSTGRESQL_PASSWORD: Willy
-
+  official:
+    docker:
+      - image: cimg/base:current
+      - image: postgres:12.6
+        environment:
+          POSTGRES_DB: wiki
+          POSTGRES_PASSWORD: Willy
 jobs:
   build:
     parameters:
       exec:
         type: executor
     executor: << parameters.exec >>
+    environment:
+      PGPASSWORD: Willy
     steps:
       - checkout
-      - run: echo "export PGPASSWORD=Willy" >> $BASH_ENV
       - run:
           name: Wait for DB to be ready
           command: |
@@ -61,6 +67,7 @@ jobs:
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -f schema.sql
       - run:
           name: Check records
+          when: always
           command: |
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SELECT COUNT(*) FROM characters;"
       - run:
@@ -68,10 +75,10 @@ jobs:
           name: test trigger JIT via queries
           when: always
           command: |
-            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVERAGE(strength) FROM characters;"
+            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVG(strength) FROM characters;"
             psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "SET jit_above_cost = 0.005;"
             # NOTE: if pg_jit_available() = false, JIT will not be used no matter what.
-            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVERAGE(strength) FROM characters;"
+            psql -h 127.0.0.1 -p 5432 -d wiki -U postgres -c "EXPLAIN ANALYZE SELECT AVG(strength) FROM characters;"
 workflows:
   main:
     jobs:
@@ -81,3 +88,4 @@ workflows:
               exec:
                 - bitnami
                 - custom
+                - official
