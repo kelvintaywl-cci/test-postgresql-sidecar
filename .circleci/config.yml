@@ -13,6 +13,8 @@ executors:
 jobs:
   build:
     executor: main
+    environment:
+      PGPASSWORD: Willy
     steps:
       - checkout
       - run:
@@ -22,10 +24,11 @@ jobs:
       - run:
           name: Insert records
           command: |
-            export POSTGRES_PASSWORD="Willy"
             psql -h 127.0.0.1 -p 5432 -d wiki -U Free -f schema.sql
       - run:
-          name: Check records
+          # From Postgres >= v12, JIT is on by default.
+          # https://www.postgresql.org/docs/current/runtime-config-query.html#GUC-JIT
+          name: Check JIT
           command: |
-            export POSTGRES_PASSWORD="Willy"
-            psql -h 127.0.0.1 -p 5432 -d wiki -U Free -c "SELECT * FROM characters;"
+            psql -h 127.0.0.1 -p 5432 -d wiki -U Free -c "SHOW jit;"
+            psql -h 127.0.0.1 -p 5432 -d wiki -U Free -c "SELECT pg_jit_available();"
