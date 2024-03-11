@@ -3,7 +3,7 @@ version: 2.1
 executors:
   main:
     docker:
-      - image: cimg/base:current
+      - image: cimg/aws:2024.03
       - image: cimg/postgres:14.7
         environment:
           POSTGRES_DB: wiki
