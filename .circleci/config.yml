@@ -4,6 +4,7 @@ executors:
   main:
     docker:
       - image: cimg/aws:2024.03
+        name: aws
 
 
 jobs:
@@ -18,7 +19,7 @@ jobs:
       - setup_remote_docker
       - run:
           name: Spin up DB
-          command: docker container run -e POSTGRES_DB -e POSTGRES_USER -e POSTGRES_PASSWORD -p "127.0.0.1:5432:5432/tcp" --detach cimg/postgres:14.7
+          command: docker container run --name=db --network "container:aws" -e POSTGRES_DB -e POSTGRES_USER -e POSTGRES_PASSWORD -p "127.0.0.1:5432:5432/tcp" --detach cimg/postgres:14.7
       - run:
           name: Wait for DB to be ready
           command: |
