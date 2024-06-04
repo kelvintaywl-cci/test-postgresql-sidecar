@@ -20,7 +20,7 @@ jobs:
       - run:
           name: Get current job container ID
           command: |
-            echo "EXPORT CUR_CNTR_ID=$(docker ps --latest --quiet)" >> $BASH_ENV
+            echo "export CUR_CNTR_ID=$(docker ps --latest --quiet)" >> $BASH_ENV
       - run:
           name: Spin up DB
           command: |
