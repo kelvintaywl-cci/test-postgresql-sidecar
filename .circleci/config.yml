@@ -4,16 +4,11 @@ executors:
   main:
     docker:
       - image: cimg/aws:2024.03
-      # - image: cimg/postgres:14.7
-      #   environment:
-      #     POSTGRES_DB: wiki
-      #     POSTGRES_USER: Free
-      #     POSTGRES_PASSWORD: Willy
+
 
 jobs:
   build:
     executor: main
-    resource_class: medium
     environment:
       POSTGRES_DB: wiki
       POSTGRES_USER: Free
@@ -22,7 +17,8 @@ jobs:
     steps:
       - setup_remote_docker
       - run:
-          name: docker container run -e POSTGRES_DB -e POSTGRES_USER -e POSTGRES_PASSWORD -p "127.0.0.1:5432:5432/tcp" --detach cimg/postgres:14.7
+          name: Spin up DB
+          command: docker container run -e POSTGRES_DB -e POSTGRES_USER -e POSTGRES_PASSWORD -p "127.0.0.1:5432:5432/tcp" --detach cimg/postgres:14.7
       - run:
           name: Wait for DB to be ready
           command: |
