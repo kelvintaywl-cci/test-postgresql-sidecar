@@ -4,8 +4,6 @@ executors:
   main:
     docker:
       - image: cimg/aws:2024.03
-        name: aws
-
 
 jobs:
   build:
@@ -18,14 +16,16 @@ jobs:
     steps:
       - setup_remote_docker
       - run:
+          # NOTE: this only works because the last spun-up container by this (remote) Docker daemon is our Docker executor job 
           name: Get current job container ID
           command: |
-            echo "export CUR_CNTR_ID=$(docker ps --latest --quiet)" >> $BASH_ENV
+            echo "export CUR_JOB_CNTR_ID=$(docker ps --latest --quiet)" >> $BASH_ENV
       - run:
           name: Spin up DB
           command: |
-            echo $CUR_CNTR_ID
-            docker container run --name=db --network "container:$CUR_CNTR_ID" -e POSTGRES_DB -e POSTGRES_USER -e POSTGRES_PASSWORD --detach cimg/postgres:14.7
+            # attach our sidecar DB container into the same network as our main job container, so they can communicate "locally"
+            # NOTE: we are passing the env vars directly from the job container to our sidecar container
+            docker container run --name=db --network "container:$CUR_JOB_CNTR_ID" -e POSTGRES_DB -e POSTGRES_USER -e POSTGRES_PASSWORD --detach cimg/postgres:14.7
       - run:
           name: Wait for DB to be ready
           command: |
