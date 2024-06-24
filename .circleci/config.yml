@@ -27,6 +27,10 @@ jobs:
             # NOTE: we are passing the env vars directly from the job container to our sidecar container
             docker container run --name=db --network "container:$CUR_JOB_CNTR_ID" -e POSTGRES_DB -e POSTGRES_USER -e POSTGRES_PASSWORD --detach cimg/postgres:14.7
       - run:
+          name: DB logs (tailed)
+          command: docker container logs --follow db
+          background: true
+      - run:
           name: Wait for DB to be ready
           command: |
             dockerize -wait tcp://127.0.0.1:5432 -timeout 1m
