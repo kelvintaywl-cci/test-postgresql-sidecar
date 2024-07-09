@@ -34,6 +34,11 @@ jobs:
       #     background: true
       - run: docker ps
       - run:
+          name: inspect main container
+          command: |
+            CNTR_ID_MAIN=$(docker ps --filter="ancestor=public.ecr.aws/eks-distro/kubernetes/pause:3.6" -q)
+            docker container inspect $CNTR_ID_MAIN
+      - run:
           name: find main Docker network
           command: |
             echo "export CNTR_NETWORK_MAIN=$(docker network ls --filter="driver=bridge" --filter="scope=local" --quiet | head -n 1)" >> $BASH_ENV
