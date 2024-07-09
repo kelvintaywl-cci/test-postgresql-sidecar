@@ -42,10 +42,11 @@ jobs:
       - run:
           name: find main Docker network
           command: |
-            echo "export CNTR_NETWORK_MAIN=$(docker network ls --filter="driver=bridge" --filter="scope=local" --quiet | head -n 1)" >> $BASH_ENV
+            echo "export CNTR_NETWORK_MAIN=$(docker network ls --filter="driver=bridge" --filter="scope=local" --filter="name=bridge" --quiet | head -n 1)" >> $BASH_ENV
       - run:
           name: connect sidecar containers from Compose to main network
           command: |
+            echo $CNTR_NETWORK_MAIN
             COMPOSE_CNTR_LIST=$(docker-compose ps -q)
             for cntr in $COMPOSE_CNTR_LIST; do
               docker network connect $CNTR_NETWORK_MAIN $cntr
