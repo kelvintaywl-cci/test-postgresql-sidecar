@@ -33,6 +33,7 @@ jobs:
       #     command: docker container logs --follow db
       #     background: true
       - run: docker ps
+      - run: docken network ls
       - run:
           name: inspect main container
           command: |
