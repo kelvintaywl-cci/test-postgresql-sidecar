@@ -32,6 +32,7 @@ jobs:
       #     name: DB logs (tailed)
       #     command: docker container logs --follow db
       #     background: true
+      - run: docker ps
       - run:
           name: Wait for DB to be ready
           command: |
