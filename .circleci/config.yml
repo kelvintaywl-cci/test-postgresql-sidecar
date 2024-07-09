@@ -47,7 +47,11 @@ jobs:
       - run:
           name: Wait for DB to be ready
           command: |
-            dockerize -wait tcp://localhost:5432 -timeout 1m
+            dockerize -wait tcp://db:5432 -timeout 1m
+      - run:
+          name: Wait for Redis to be ready
+          command: |
+            dockerize -wait tcp://redis:6379 -timeout 1m
       # - checkout
       # - run:
       #     name: Insert records
