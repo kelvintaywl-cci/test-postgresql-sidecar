@@ -17,25 +17,10 @@ jobs:
       - setup_remote_docker
       - checkout
       - run: docker-compose up -d
-      # - run:
-      #     # NOTE: this only works because the last spun-up container by this (remote) Docker daemon is our Docker executor job 
-      #     name: Get current job container ID
-      #     command: |
-      #       echo "export CUR_JOB_CNTR_ID=$(docker ps --latest --quiet)" >> $BASH_ENV
-      # - run:
-      #     name: Spin up DB
-      #     command: |
-      #       # attach our sidecar DB container into the same network as our main job container, so they can communicate "locally"
-      #       # NOTE: we are passing the env vars directly from the job container to our sidecar container
-      #       docker container run --name=db --network "container:$CUR_JOB_CNTR_ID" -e POSTGRES_DB -e POSTGRES_USER -e POSTGRES_PASSWORD --detach cimg/postgres:14.7
-      # - run:
-      #     name: DB logs (tailed)
-      #     command: docker container logs --follow db
-      #     background: true
       - run: docker ps
       - run: docker network ls
       - run:
-          name: find main Docker network
+          name: find main Docker network of pause container
           command: |
             CNTR_ID_MAIN=$(docker ps --filter="ancestor=public.ecr.aws/eks-distro/kubernetes/pause:3.6" -q)
             echo "export CNTR_NETWORK_MAIN=$(docker container inspect $CNTR_ID_MAIN | jq -r '.[0].NetworkSettings.Networks|map(select(.Aliases))|.[0].NetworkID')" >> $BASH_ENV
@@ -49,21 +34,19 @@ jobs:
             done
       - run:
           name: Wait for DB to be ready
+          # NOTE: i refer to the container name (db) since that is the DNS record
           command: |
             dockerize -wait tcp://db:5432 -timeout 1m
       - run:
           name: Wait for Redis to be ready
+          # NOTE: i refer to the container name (redis) since that is the DNS record
           command: |
             dockerize -wait tcp://redis:6379 -timeout 1m
-      # - checkout
-      # - run:
-      #     name: Insert records
-      #     command: |
-      #       psql -h 127.0.0.1 -p 5432 -d wiki -U Free -f schema.sql
-      # - run:
-      #     # From Postgres >= v12, JIT is on by default.
-      #     # https://www.postgresql.org/docs/current/runtime-config-query.html#GUC-JIT
-      #     name: Check JIT
-      #     command: |
-      #       psql -h 127.0.0.1 -p 5432 -d wiki -U Free -c "SHOW jit;"
-      #       psql -h 127.0.0.1 -p 5432 -d wiki -U Free -c "SELECT pg_jit_available();"
+      - run:
+          name: Insert records
+          command: |
+            psql -h db -p 5432 -d wiki -U Free -f schema.sql
+      - run:
+          name: Check records
+          command: |
+            psql -h db -p 5432 -d wiki -U Free -c "SELECT * FROM characters;"
