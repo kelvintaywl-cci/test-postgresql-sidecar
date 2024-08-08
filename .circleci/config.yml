@@ -4,11 +4,6 @@ executors:
   main:
     docker:
       - image: cimg/aws:2024.03
-      - image: cimg/postgres:14.7
-        environment:
-          POSTGRES_DB: wiki
-          POSTGRES_USER: Free
-          POSTGRES_PASSWORD: Willy
 
 jobs:
   build:
@@ -17,18 +12,3 @@ jobs:
       PGPASSWORD: Willy
     steps:
       - checkout
-      - run:
-          name: Wait for DB to be ready
-          command: |
-            dockerize -wait tcp://localhost:5432 -timeout 1m
-      - run:
-          name: Insert records
-          command: |
-            psql -h 127.0.0.1 -p 5432 -d wiki -U Free -f schema.sql
-      - run:
-          # From Postgres >= v12, JIT is on by default.
-          # https://www.postgresql.org/docs/current/runtime-config-query.html#GUC-JIT
-          name: Check JIT
-          command: |
-            psql -h 127.0.0.1 -p 5432 -d wiki -U Free -c "SHOW jit;"
-            psql -h 127.0.0.1 -p 5432 -d wiki -U Free -c "SELECT pg_jit_available();"
